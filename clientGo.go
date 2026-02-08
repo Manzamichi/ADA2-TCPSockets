@@ -1,12 +1,12 @@
 package main
 
-import {
+import (
 	"bufio"
 	"fmt"
 	"net"
 	"os"
 	"strings"
-}
+)
 
 type Messenger struct {
 	conn net.Conn
@@ -23,7 +23,7 @@ func newMessenger(address string) (*Messenger, error) {
 func (m *Messenger) ReceiveHandler() {
 	reader := bufio.NewReader(m.conn)
 	for {
-		message, err := reader.Readstring('\n')
+		message, err := reader.ReadString('\n')
 		if err != nil {
 			fmt.Println("\n[Sistema] Conexion perdida con el servidor")
 			break
@@ -51,10 +51,14 @@ func (m *Messenger) sendHandler() {
 	}
 }
 
+func (m *Messenger) Close() error {
+	return m.conn.Close()
+}
+
 func main() {
 	const serverAddress = "localhost:8080"
 
-	client, err := NewMessenger(serverAddress)
+	client, err := newMessenger(serverAddress)
 	if err != nil {
 		fmt.Printf("[Error] Fallo al conectar: %v\n", err)
 		return
@@ -64,5 +68,5 @@ func main() {
 	fmt.Println("Conectado al servidor! (Para salir, escribe 'salir')")
 
 	go client.ReceiveHandler()
-	client.SendHandler()
+	client.sendHandler()
 }
