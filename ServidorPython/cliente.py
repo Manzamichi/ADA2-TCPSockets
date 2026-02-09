@@ -4,7 +4,7 @@ import sys
 from mensaje import Mensaje
 
 class Cliente:
-    def __init__(self, host='127.0.0.1', puerto=5000):
+    def __init__(self, host='127.0.0.1', puerto=5050):
         self.host = host
         self.puerto = puerto
         self.socket_cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

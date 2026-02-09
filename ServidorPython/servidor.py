@@ -4,7 +4,7 @@ import sys
 from mensaje import Mensaje
 
 class Servidor:
-    def __init__(self, host='0.0.0.0', puerto=5000):
+    def __init__(self, host='0.0.0.0', puerto=5050):
         self.host = host
         self.puerto = puerto
         self.servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,6 +42,8 @@ class Servidor:
 
         except KeyboardInterrupt:
             print("\n[SISTEMA] Apagando servidor desde el teclado...")
+        except Exception as e:
+            print(f"[ERROR] El servidor no pudo iniciar: {e}")
         finally:
             self.detener()
 
@@ -62,24 +64,23 @@ class Servidor:
             for msg in self.historial_mensajes:
                 try:
                     # También con \n aquí
-                    cliente_socket.send((msg.a_json() + "\n").encode('utf-8'))
+                    cliente_socket.send((msg.empaquetar() + "\n").encode('utf-8'))
                 except:
                     break
 
     def eliminar_cliente(self, cliente_socket):
         """Maneja la desconexión de un cliente."""
+        nombre = None
         with self.bloqueo:
             if cliente_socket in self.clientes:
                 nombre = self.clientes[cliente_socket]
                 print(f"[DESCONEXIÓN] {nombre} salió.")
                 del self.clientes[cliente_socket]
                 cliente_socket.close()
-                
-                # Difundir después de liberar el bloqueo para evitar deadlocks
-                msg_desconexion = Mensaje("Servidor", f"{nombre} se ha desconectado.", "SISTEMA")
-                # Se llama fuera del 'with self.bloqueo' si difundir ya pide bloqueo
-        
-        self.difundir(msg_desconexion)
+
+        if nombre:
+            msg_desconexion = Mensaje("Servidor", f"{nombre} se ha desconectado.", "SISTEMA")
+            self.difundir(msg_desconexion)
 
     def gestionar_cliente(self, cliente_socket):
         """Hilo dedicado a escuchar a un cliente."""
