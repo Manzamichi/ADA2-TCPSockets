@@ -9,7 +9,7 @@ public class ClienteJava {
 
     public static void main(String[] args) {
         String host = "127.0.0.1";
-        int puerto = 5000;
+        int puerto = 5050;
 
         // Usamos try-with-resources para asegurar el cierre de recursos
         try (Socket socket = new Socket(host, puerto)) {
